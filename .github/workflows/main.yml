@@ -18,7 +18,7 @@ jobs:
         run: |
           i=1
           for db_url in $(echo "$DATABASE_URLS" | tr '\n' ' '); do
-            if ! psql "$db_url" -c "SELECT 1;"; then
+            if ! psql "$db_url" -q -t -c "SELECT 1;"; then
               echo "Failed to connect to database no-$i"
             else
               echo "Connection successful to database no-$i"
