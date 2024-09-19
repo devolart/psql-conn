@@ -16,6 +16,12 @@ jobs:
         env:
           DATABASE_URLS: ${{ secrets.DATABASE_URLS }}
         run: |
+          i=1
           for db_url in $(echo "$DATABASE_URLS" | tr '\n' ' '); do
-            psql "$db_url" -c "SELECT 1;"
+            if ! psql "$db_url" -c "SELECT 1;"; then
+              echo "Failed to connect to database no-$i"
+            else
+              echo "Connection successful to database no-$i"
+            fi
+            i=$((i+1))
           done
