@@ -1,0 +1,21 @@
+name: PSQLConn
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  psql-conn:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run PSQL queries
+        env:
+          DATABASE_URLS: ${{ secrets.DATABASE_URLS }}
+        run: |
+          for db_url in $(echo "$DATABASE_URLS" | tr '\n' ' '); do
+            psql "$db_url" -c "SELECT 1;"
+          done
