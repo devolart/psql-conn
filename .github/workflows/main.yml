@@ -12,12 +12,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Run PSQL queries
+      - name: Fetch Database URLs
         env:
-          DATABASE_URLS: ${{ secrets.DATABASE_URLS }}
+          CONFIG_URL: ${{ secrets.CONFIG_URL }}
+        run: |
+          echo "Fetching database URLs from Gist..."
+          DATABASE_URLS=$(curl -s "${CONFIG_URL}?cache-bypass=$(date +%s)")
+          echo "$DATABASE_URLS" > db_urls.txt
+
+      - name: Run PSQL queries
         run: |
           i=1
-          for db_url in $(echo "$DATABASE_URLS" | tr '\n' ' '); do
+          DATABASE_URLS=$(cat db_urls.txt)
+          for db_url in $DATABASE_URLS; do
             if ! psql "$db_url" -q -t -c "SELECT 1;"; then
               echo "Failed to connect to database no-$i"
             else
